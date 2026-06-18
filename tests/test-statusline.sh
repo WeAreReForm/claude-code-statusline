@@ -14,8 +14,8 @@ RESET='\033[0m'
 PASS=0
 FAIL=0
 
-pass() { printf "${GREEN}✓${RESET} %s\n" "$1"; ((PASS++)); }
-fail() { printf "${RED}✗${RESET} %s — %s\n" "$1" "$2"; ((FAIL++)); }
+pass() { printf "${GREEN}✓${RESET} %s\n" "$1"; PASS=$((PASS + 1)); }
+fail() { printf "${RED}✗${RESET} %s — %s\n" "$1" "$2"; FAIL=$((FAIL + 1)); }
 
 # --- Test helpers ---
 run_script() {
