@@ -80,6 +80,10 @@ Estimation basée sur la consommation de refroidissement des datacenters (valeur
 
 Le préfixe `~` rappelle que ces chiffres sont des approximations.
 
+### Localisation du datacenter
+
+La localisation réelle du datacenter qui traite ta session n'est pas exposée par Claude Code. Anthropic route dynamiquement les requêtes selon la charge — il est donc impossible de l'afficher de façon fiable. Les estimations de consommation d'eau ci-dessus varient selon les régions et les sources d'énergie locales.
+
 ---
 
 ## Taux de change
