@@ -1,0 +1,29 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: brew install jq bc
+
+      - name: Check bash syntax
+        run: |
+          bash -n scripts/statusline.sh
+          bash -n install.sh
+          bash -n tests/test-statusline.sh
+
+      - name: Run tests
+        run: bash tests/test-statusline.sh
+
+      - name: Test install script (dry run)
+        run: bash -n install.sh

@@ -1,0 +1,26 @@
+{
+  "_comment": "Advanced Claude Code settings example. Copy relevant sections to ~/.claude/settings.json",
+
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
+
+  "model": "claude-sonnet-4-6",
+
+  "theme": "dark",
+
+  "voice": {
+    "mode": "hold"
+  },
+
+  "_statusline_options": {
+    "show_water": true,
+    "show_cost": true,
+    "show_git": true,
+    "context_thresholds": {
+      "warning": 70,
+      "danger": 85
+    }
+  }
+}

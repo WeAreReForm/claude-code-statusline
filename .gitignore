@@ -1,0 +1,21 @@
+# Logs and stats
+logs/
+stats/
+*.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Secrets
+.env
+*.secret
+*_secret*
+
+# Backup files
+*.bak
+*.orig
+
+# Runtime
+/tmp/
