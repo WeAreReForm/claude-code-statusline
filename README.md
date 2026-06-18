@@ -4,86 +4,106 @@
 ![Platform: macOS](https://img.shields.io/badge/Platform-macOS-blue.svg)
 ![Shell: Bash](https://img.shields.io/badge/Shell-Bash-orange.svg)
 
-Status line riche pour Claude Code : modèle, contexte, git, coût estimé et consommation d'eau.
+Status line graphique pour [Claude Code](https://claude.ai/code) : modèle actif, barre de contexte, branche git, dossier, coût de session, consommation d'eau estimée, mode fast et rate limits.
 
 ```
-Sonnet │ 12% │  main │ my-project │ 💧 11.6mL │ €0.014
+✦ Sonnet ╱ ▰▰▱▱▱▱▱▱ 12% ╱ ⎇ main ✎2 ╱ 📁 my-project ╱ 💧 ~0.44cL ╱ 🪙 €0.043 ╱ ⚡ fast ╱ ⏱ 55%
 ```
 
 ---
 
-## Installation rapide
+## Prérequis
 
-### 30 secondes
+- macOS (Linux compatible)
+- `bash` 3.2+
+- `jq` → `brew install jq`
+- `bc` → inclus sur macOS
+
+---
+
+## Installation
+
+### Rapide (30 secondes)
 ```bash
+git clone https://github.com/WeAreReForm/claude-code-statusline.git
+cd claude-code-statusline
 bash install.sh
 ```
 Puis redémarre Claude Code.
 
-### 1 minute (manuelle)
+### Manuelle
 ```bash
 cp scripts/statusline.sh ~/.claude/statusline.sh
 chmod +x ~/.claude/statusline.sh
-# Ajouter dans ~/.claude/settings.json :
-# "statusLine": { "type": "command", "command": "~/.claude/statusline.sh" }
 ```
 
-### 5 minutes (avec personnalisation)
-Lire [docs/PERSONALIZATION.md](docs/PERSONALIZATION.md).
+Ajouter dans `~/.claude/settings.json` :
+```json
+"statusLine": {
+  "type": "command",
+  "command": "~/.claude/statusline.sh"
+}
+```
 
 ---
 
 ## Ce qui s'affiche
 
-| Élément | Exemple | Description |
+| Segment | Exemple | Description |
 |---|---|---|
-| Modèle | `Sonnet` | Modèle actif (Opus/Sonnet/Haiku) |
-| Contexte | `12%` | Fenêtre de contexte utilisée |
-| Git | ` main *3` | Branche + fichiers modifiés |
-| Dossier | `my-project` | Dossier courant |
-| Eau | `💧 11.6mL` | Consommation eau estimée |
-| Coût | `€0.014` | Coût session estimé |
+| Modèle | `✦ Sonnet` | Modèle actif (Opus / Sonnet / Haiku) |
+| Contexte | `▰▰▱▱▱▱▱▱ 12%` | Barre de progression + % utilisé |
+| Git | `⎇ main ✎2` | Branche active + nb fichiers modifiés |
+| Dossier | `📁 my-project` | Dossier du projet Claude Code |
+| Eau | `💧 ~0.44cL` | Consommation eau estimée (centilitres) |
+| Coût | `🪙 €0.043` | Coût réel de la session (USD → EUR) |
+| Fast | `⚡ fast` | Affiché uniquement si fast mode actif |
+| Rate limit | `⏱ 55%` | % du quota 5h utilisé (masqué si 0) |
 
-### Couleurs contexte
-- `< 70%` → vert
-- `70–85%` → jaune (attention)
-- `> 85%` → rouge (critique)
+### Couleurs de la barre de contexte
+
+| Seuil | Couleur |
+|---|---|
+| < 70% | Orange |
+| 70–85% | Jaune-orange |
+| > 85% | Rouge |
 
 ---
 
 ## Consommation d'eau
 
-Chaque token consomme de l'eau (refroidissement datacenters) :
+Estimation basée sur la consommation de refroidissement des datacenters (valeurs indicatives) :
 
-| Modèle | mL/token |
+| Modèle | cL/1000 tokens |
 |---|---|
-| Opus | ~0.004 |
-| Sonnet | ~0.002 |
-| Haiku | ~0.001 |
+| Opus | ~0.4 |
+| Sonnet | ~0.2 |
+| Haiku | ~0.1 |
 
-Ces chiffres sont des estimations — les valeurs réelles varient selon les datacenters.
+Le préfixe `~` rappelle que ces chiffres sont des approximations.
 
 ---
 
-## Pré-requis
+## Taux de change
 
-- macOS (Linux compatible)
-- `bash` 3.2+
-- `jq` — `brew install jq`
-- `bc` — inclus sur macOS
+Le coût est converti USD → EUR avec un taux fixe de `0.92`. Modifier la ligne dans `statusline.sh` si besoin :
+
+```bash
+TOTAL_COST=$(echo "scale=4; $COST_USD * 0.92" | bc -l)
+```
 
 ---
 
 ## FAQ
 
 **La status line ne s'affiche pas ?**
-Vérifie que `statusLine.command` pointe bien vers `~/.claude/statusline.sh` dans settings.json.
+Vérifie que `statusLine.command` pointe vers `~/.claude/statusline.sh` dans `settings.json`.
 
-**Erreur "bc: command not found" ?**
-`brew install bc` sur macOS (normalement déjà présent).
+**Le dossier affiché est `~` au lieu du projet ?**
+Lance Claude Code depuis le terminal dans le dossier du projet, pas depuis le menu global.
 
-**Personnaliser les seuils de couleur ?**
-Voir [docs/PERSONALIZATION.md](docs/PERSONALIZATION.md).
+**Erreur `jq: command not found` ?**
+`brew install jq`
 
 ---
 
@@ -92,17 +112,15 @@ Voir [docs/PERSONALIZATION.md](docs/PERSONALIZATION.md).
 - [Installation détaillée](docs/INSTALLATION.md)
 - [Personnalisation](docs/PERSONALIZATION.md)
 - [Dépannage](docs/TROUBLESHOOTING.md)
-- [Usage avancé](docs/ADVANCED.md)
-- [Source Notion](docs/NOTION-LINK.md)
 
 ---
 
 ## Roadmap
 
 - [x] v1.0 — modèle, contexte, git, eau, coût
-- [ ] v1.1 — CO₂ estimation
-- [ ] v1.2 — webhook n8n intégré
-- [ ] v1.3 — support Linux/Windows WSL
+- [x] v1.1 — barre de progression, palette orange, coût réel, fast mode, rate limits
+- [ ] v1.2 — support Linux/Windows WSL
+- [ ] v1.3 — CO₂ estimation
 
 ---
 
