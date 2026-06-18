@@ -97,7 +97,8 @@ if git rev-parse --is-inside-work-tree &>/dev/null 2>&1; then
   fi
 fi
 
-FOLDER=$(basename "$PWD")
+CWD=$(echo "$INPUT" | jq -r '.workspace.project_dir // .cwd // ""')
+FOLDER=$(basename "${CWD:-$PWD}")
 SEP="${GRAY_LIGHT} ╱ ${RESET}"
 
 # --- Build output ---
