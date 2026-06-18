@@ -82,8 +82,8 @@ case "$MODEL_LABEL" in
   *)      WATER_RATE="0.002" ;;
 esac
 TOTAL_TOKENS=$(echo "$TOTAL_INPUT + $TOTAL_OUTPUT" | bc 2>/dev/null || echo "0")
-WATER_ML=$(echo "scale=1; $TOTAL_TOKENS * $WATER_RATE" | bc -l 2>/dev/null || echo "0")
-WATER_DISPLAY=$(printf "%.1f" "$WATER_ML" 2>/dev/null || echo "0.0")
+WATER_CL=$(echo "scale=2; $TOTAL_TOKENS * $WATER_RATE / 10" | bc -l 2>/dev/null || echo "0")
+WATER_DISPLAY=$(printf "%.2f" "$WATER_CL" 2>/dev/null || echo "0.00")
 
 # --- Git info ---
 GIT_PART=""
@@ -113,7 +113,7 @@ if [ -n "$GIT_PART" ]; then
 fi
 printf "%s📁 %s%s" "$GRAY_LIGHT" "$FOLDER" "$RESET"
 printf "%s" "$SEP"
-printf "💧 %s%smL%s" "$ORANGE_LIGHT" "$WATER_DISPLAY" "$RESET"
+printf "💧 %s%scL%s" "$ORANGE_LIGHT" "$WATER_DISPLAY" "$RESET"
 printf "%s" "$SEP"
 printf "🪙 %s€%s%s" "$ORANGE" "$COST_DISPLAY" "$RESET"
 printf "\n"
