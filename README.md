@@ -6,9 +6,7 @@
 
 Status line graphique pour [Claude Code](https://claude.ai/code) : modèle actif, barre de contexte, branche git, dossier, coût de session, consommation d'eau estimée, mode fast et rate limits.
 
-```
-✦ Sonnet ╱ ▰▰▱▱▱▱▱▱ 12% ╱ ⎇ main ✎2 ╱ 📁 my-project ╱ 💧 ~0.44cL ╱ 🪙 €0.043 ╱ ⚡ fast ╱ ⏱ 55%
-```
+![Screenshot de la statusline](docs/screenshot.png)
 
 ---
 
