@@ -59,7 +59,7 @@ OUT_HAIKU=$(run_script "$HAIKU")
 echo "$OUT_HAIKU" | grep -qi "haiku" && pass "Haiku model recognized" || fail "Haiku model recognized" "Haiku not in output"
 
 # 9. Water display present
-echo "$OUT" | grep -q "mL" && pass "Water (mL) shown" || fail "Water (mL) shown" "mL not found"
+echo "$OUT" | grep -q "cL" && pass "Water (cL) shown" || fail "Water (cL) shown" "cL not found"
 
 # 10. Cost display present (€ or EUR)
 echo "$OUT" | grep -qE "[€E]" && pass "Cost shown" || fail "Cost shown" "€ not found"
