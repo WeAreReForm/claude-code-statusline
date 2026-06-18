@@ -48,8 +48,12 @@ if command -v jq &>/dev/null; then
   CONTEXT_PCT=$(echo "$INPUT" | jq -r '.context_window.used_percentage // 0')
   TOTAL_INPUT=$(echo "$INPUT" | jq -r '.context_window.total_input_tokens // 0')
   TOTAL_OUTPUT=$(echo "$INPUT" | jq -r '.context_window.total_output_tokens // 0')
+  COST_USD=$(echo "$INPUT" | jq -r '.cost.total_cost_usd // ""')
+  FAST_MODE=$(echo "$INPUT" | jq -r '.fast_mode // false')
+  RATE_5H=$(echo "$INPUT" | jq -r '.rate_limits.five_hour.used_percentage // ""')
 else
   MODEL="unknown"; CONTEXT_PCT=0; TOTAL_INPUT=0; TOTAL_OUTPUT=0
+  COST_USD=""; FAST_MODE="false"; RATE_5H=""
 fi
 
 # --- Model label ---
@@ -68,10 +72,14 @@ elif [ "$(echo "$CONTEXT_PCT > 70" | bc -l 2>/dev/null || echo 0)" = "1" ]; then
   CTX_COLOR="$YELLOW_ORANGE"
 fi
 
-# --- Cost estimate (USD → EUR) ---
-INPUT_COST=$(echo  "scale=4; $TOTAL_INPUT  / 1000000 * 3  * 0.92" | bc -l 2>/dev/null || echo "0")
-OUTPUT_COST=$(echo "scale=4; $TOTAL_OUTPUT / 1000000 * 15 * 0.92" | bc -l 2>/dev/null || echo "0")
-TOTAL_COST=$(echo  "scale=4; $INPUT_COST + $OUTPUT_COST"           | bc -l 2>/dev/null || echo "0")
+# --- Cost (real USD from JSON → EUR, fallback to estimate) ---
+if [ -n "$COST_USD" ] && [ "$COST_USD" != "0" ] && [ "$COST_USD" != "null" ]; then
+  TOTAL_COST=$(echo "scale=4; $COST_USD * 0.92" | bc -l 2>/dev/null || echo "0")
+else
+  INPUT_COST=$(echo  "scale=4; $TOTAL_INPUT  / 1000000 * 3  * 0.92" | bc -l 2>/dev/null || echo "0")
+  OUTPUT_COST=$(echo "scale=4; $TOTAL_OUTPUT / 1000000 * 15 * 0.92" | bc -l 2>/dev/null || echo "0")
+  TOTAL_COST=$(echo  "scale=4; $INPUT_COST + $OUTPUT_COST"           | bc -l 2>/dev/null || echo "0")
+fi
 COST_DISPLAY=$(printf "%.3f" "$TOTAL_COST" 2>/dev/null || echo "0.000")
 
 # --- Water consumption ---
@@ -113,7 +121,21 @@ if [ -n "$GIT_PART" ]; then
 fi
 printf "%s📁 %s%s" "$GRAY_LIGHT" "$FOLDER" "$RESET"
 printf "%s" "$SEP"
-printf "💧 %s%scL%s" "$ORANGE_LIGHT" "$WATER_DISPLAY" "$RESET"
+printf "💧 %s~%scL%s" "$ORANGE_LIGHT" "$WATER_DISPLAY" "$RESET"
 printf "%s" "$SEP"
 printf "🪙 %s€%s%s" "$ORANGE" "$COST_DISPLAY" "$RESET"
+if [ "$FAST_MODE" = "true" ]; then
+  printf "%s" "$SEP"
+  printf "%s⚡ fast%s" "$YELLOW_ORANGE" "$RESET"
+fi
+if [ -n "$RATE_5H" ] && [ "$RATE_5H" != "null" ] && [ "$RATE_5H" != "0" ]; then
+  RATE_COLOR="$ORANGE_LIGHT"
+  if [ "$(echo "$RATE_5H > 80" | bc -l 2>/dev/null || echo 0)" = "1" ]; then
+    RATE_COLOR="$RED"
+  elif [ "$(echo "$RATE_5H > 50" | bc -l 2>/dev/null || echo 0)" = "1" ]; then
+    RATE_COLOR="$YELLOW_ORANGE"
+  fi
+  printf "%s" "$SEP"
+  printf "⏱ %s%s%%%s" "$RATE_COLOR" "$RATE_5H" "$RESET"
+fi
 printf "\n"
