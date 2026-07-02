@@ -51,9 +51,10 @@ if command -v jq &>/dev/null; then
   COST_USD=$(echo "$INPUT" | jq -r '.cost.total_cost_usd // ""')
   FAST_MODE=$(echo "$INPUT" | jq -r '.fast_mode // false')
   RATE_5H=$(echo "$INPUT" | jq -r '.rate_limits.five_hour.used_percentage // ""')
+  CC_VERSION=$(echo "$INPUT" | jq -r '.version // ""')
 else
   MODEL="unknown"; CONTEXT_PCT=0; TOTAL_INPUT=0; TOTAL_OUTPUT=0
-  COST_USD=""; FAST_MODE="false"; RATE_5H=""
+  COST_USD=""; FAST_MODE="false"; RATE_5H=""; CC_VERSION=""
 fi
 
 # --- Model label ---
@@ -111,6 +112,9 @@ SEP="${GRAY_LIGHT} ╱ ${RESET}"
 
 # --- Build output ---
 printf "%s✦%s %s%s%s" "$ORANGE" "$RESET" "$WHITE$BOLD" "$MODEL_LABEL" "$RESET"
+if [ -n "$CC_VERSION" ] && [ "$CC_VERSION" != "null" ]; then
+  printf " %sv%s%s" "$GRAY_LIGHT" "$CC_VERSION" "$RESET"
+fi
 printf "%s" "$SEP"
 progress_bar "$CONTEXT_PCT" 8
 printf " %s%s%s%s%%" "$CTX_COLOR" "$BOLD" "$CONTEXT_PCT" "$RESET"
