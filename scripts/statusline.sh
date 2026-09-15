@@ -22,7 +22,12 @@ RESET=$'\033[0m'
 progress_bar() {
   local pct=$1
   local width=${2:-8}
-  local filled=$(echo "scale=0; $pct * $width / 100" | bc 2>/dev/null || echo 0)
+  # Round to nearest block, show at least one block when usage > 0
+  local filled=$(echo "scale=0; ($pct * $width + 50) / 100" | bc 2>/dev/null || echo 0)
+  if [ "$filled" -eq 0 ] && [ "$(echo "$pct > 0" | bc -l 2>/dev/null || echo 0)" = "1" ]; then
+    filled=1
+  fi
+  [ "$filled" -gt "$width" ] && filled=$width
   local empty=$((width - filled))
   local i=0
 
@@ -57,8 +62,9 @@ else
   COST_USD=""; FAST_MODE="false"; RATE_5H=""; CC_VERSION=""
 fi
 
-# --- Model label ---
-case "$MODEL" in
+# --- Model label (case-insensitive: display_name can be "Opus 5" or "claude-opus-4-8") ---
+MODEL_LC=$(printf "%s" "$MODEL" | tr '[:upper:]' '[:lower:]')
+case "$MODEL_LC" in
   *opus*)   MODEL_LABEL="Opus"   ;;
   *sonnet*) MODEL_LABEL="Sonnet" ;;
   *haiku*)  MODEL_LABEL="Haiku"  ;;

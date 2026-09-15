@@ -82,6 +82,18 @@ command -v jq &>/dev/null && pass "jq available" || fail "jq available" "Install
 # 15. bc available (dependency check)
 command -v bc &>/dev/null && pass "bc available" || fail "bc available" "Install: brew install bc"
 
+strip_ansi() { sed $'s/\033\\[[0-9;]*m//g'; }
+
+# 16. Capitalized display_name is shortened and uses the Opus water rate
+OPUS_CAP='{"model":{"display_name":"Opus 5 (1M context)"},"context_window":{"used_percentage":10,"total_input_tokens":8000,"total_output_tokens":2000}}'
+OUT_CAP=$(run_script "$OPUS_CAP" | strip_ansi)
+echo "$OUT_CAP" | grep -q "✦ Opus ╱" && pass "Capitalized model name recognized" || fail "Capitalized model name recognized" "Got: $OUT_CAP"
+echo "$OUT_CAP" | grep -q "~4.00cL" && pass "Opus water rate applied" || fail "Opus water rate applied" "Got: $OUT_CAP"
+
+# 17. Low context usage still fills one bar block
+OUT_BAR=$(run_script "$LOW" | strip_ansi)
+echo "$OUT_BAR" | grep -q "▰▱▱▱▱▱▱▱ 12%" && pass "Bar shows one block at 12%" || fail "Bar shows one block at 12%" "Got: $OUT_BAR"
+
 # --- Summary ---
 printf "\n${BOLD}Results: ${GREEN}%d passed${RESET}, ${RED}%d failed${RESET}\n" "$PASS" "$FAIL"
 
